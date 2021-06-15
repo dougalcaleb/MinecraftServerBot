@@ -1,5 +1,5 @@
-const Ping = require("ping");
 const Net = require("net");
+const Discord = require("discord.js");
 
 // Returns a string that says how long it has been since the given timestamp
 function getTimeSince(date) {
@@ -30,37 +30,113 @@ function getTimeSince(date) {
 	return "Just now";
 }
 
+// Returns a time + date string from a timestamp (hh:mm:ss xm, mm/dd/yyyy)
 function getTime(date) {
-	return new Date(date).toLocaleTimeString("en-US") + ", " +  new Date(date).toLocaleDateString("en-US");
+	return new Date(date).toLocaleTimeString("en-US") + ", " + new Date(date).toLocaleDateString("en-US");
 }
 
+// Ping the server socket to verify it is active
 function pingServer(ip, callback) {
-   // Ping.sys.probe("localhost:25565", (active) => {
-   //    callback(active);
-   // });
-
-   let socket = new Net.Socket();
-   socket.setTimeout(3000);
-   socket.on("connect", () => {
-      callback(true);
-      socket.destroy();
-   }).on("error", () => {
-      callback(false);
-   }).on("timeout", () => {
-      callback(false);
-   }).connect(25565, "localhost");
+	let socket = new Net.Socket();
+	socket.setTimeout(3000);
+	socket
+		.on("connect", () => {
+			callback(true);
+			socket.destroy();
+		})
+		.on("error", () => {
+			callback(false);
+		})
+		.on("timeout", () => {
+			callback(false);
+		})
+		.connect(ip[0], ip[1]);
 }
 
+// Parse a player's name to prevent text formatting
 function parsePlayerName(name) {
-   let fixedName = name.trim().substring(2, name.length - 2);
-   fixedName = fixedName.split("").map((char) => {
-      if (char === "*" || char === "_") {
-         return "\\" + char;
-      } 
-      return char;
-   });
-   fixedName = fixedName.join("");
-   return fixedName;
+	let fixedName = name.trim().substring(2, name.length - 2);
+	fixedName = fixedName.split("").map((char) => {
+		if (char === "*" || char === "_") {
+			return "\\" + char;
+		}
+		return char;
+	});
+	fixedName = fixedName.join("");
+	return fixedName;
 }
 
-module.exports = { getTimeSince, getTime, pingServer, parsePlayerName };
+// Get the last bot message
+function fetchBotMessage(channel, callback) {
+	channel.messages.fetch({limit: 1}).then((messages) => {
+		messages.forEach((message) => {
+			callback(message);
+		});
+	});
+}
+
+// Edit the last embed message (join/leave events)
+function editMessage(message, server, callback) {
+	// Message
+	let embedMsg = `${server.online ? ":white_check_mark: Online" : ":x: Offline"} (Verified at ${getTime(Date.now())})
+      \n:clock2: Last online: ${getTime(server.lastOnline)} (${getTimeSince(server.lastOnline)}) 
+      \n:video_game: Players online (${server.players.length}):\n`;
+
+	server.players.forEach((op) => {
+		embedMsg += `- ${op} \n`;
+	});
+
+	// Construct embed
+	const embed = new Discord.MessageEmbed()
+		.setTitle("Server Stats")
+		.setColor(server.online ? server.onlineColor : server.offlineColor)
+		.setDescription(embedMsg);
+
+	// Send
+   message.edit(embed).then(() => {
+      if (callback) {
+         callback();
+      }
+   }).catch((error) => {
+		console.log("Message edit failed");
+		console.log(error);
+		process.exit();
+	});
+}
+
+// Send a new embed message (online/offline events)
+function sendNewMessage(message, channel, server, callback) {
+	// Message
+	let embedMsg = `${server.online ? ":white_check_mark: Online" : ":x: Offline"} (Verified at ${getTime(Date.now())})
+   \n:clock2: Last online: ${getTime(server.lastOnline)} (${getTimeSince(server.lastOnline)}) 
+   \n:video_game: Players online (${server.players.length}):\n`;
+
+	server.players.forEach((op) => {
+		embedMsg += `- ${op} \n`;
+	});
+
+	// Construct embed
+	const embed = new Discord.MessageEmbed()
+		.setTitle("Server Stats")
+		.setColor(server.online ? server.onlineColor : server.offlineColor)
+      .setDescription(embedMsg);
+   
+	// Delete last message
+	message.delete().catch(() => {
+		console.log("Delete failed");
+	});
+
+	// Send new message
+	channel
+		.send(embed)
+		.then(() => {
+         callback();
+		})
+		.catch((error) => {
+			console.log("Message send failed");
+			console.log(error);
+			process.exit();
+		});
+}
+
+module.exports = {getTimeSince, getTime, pingServer, parsePlayerName, fetchBotMessage, editMessage, sendNewMessage};
