@@ -88,7 +88,7 @@ function editMessage(message, server, callback) {
 
 	// Construct embed
 	const embed = new Discord.MessageEmbed()
-		.setTitle("Server Stats")
+		.setTitle("Server Status")
 		.setColor(server.online ? server.onlineColor : server.offlineColor)
 		.setDescription(embedMsg);
 
@@ -117,7 +117,7 @@ function sendNewMessage(message, channel, server, callback) {
 
 	// Construct embed
 	const embed = new Discord.MessageEmbed()
-		.setTitle("Server Stats")
+		.setTitle("Server Status")
 		.setColor(server.online ? server.onlineColor : server.offlineColor)
       .setDescription(embedMsg);
    

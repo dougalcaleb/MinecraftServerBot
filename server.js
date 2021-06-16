@@ -85,53 +85,19 @@ client.on("message", (message) => {
 			player = utility.parsePlayerName(message.content.split(" Left the server!")[0]);
 
 			server.players = server.players.filter((playerOnline) => {
-				// console.log(`Player leaving is not ${playerOnline}: ${playerOnline != player}`);
 				return playerOnline != player;
 			});
-		}
-
-		// Message
-		// let embedMsg = `${server.online ? ":white_check_mark: Online" : ":x: Offline"}
-      // \n:clock2: Last online: ${utility.getTime(server.lastOnline)} (${utility.getTimeSince(server.lastOnline)}) 
-      // \n:video_game: Players online (${server.players.length}):\n`;
-
-		// server.players.forEach((op) => {
-		// 	embedMsg += `- ${op} \n`;
-		// });
-
-		// const embed = new Discord.MessageEmbed()
-		// 	.setTitle("Server Stats")
-		// 	.setColor(server.online ? server.onlineColor : server.offlineColor)
-		// 	.setDescription(embedMsg);
-
+      }
+      
 		// Sends new message on online/offline event
 		if (type === "online" || type === "offline") {
-			// global.lastMessage.delete().catch(() => {
-			// 	console.log("Delete failed");
-			// });
-			// global.botChannel
-			// 	.send(embed)
-			// 	.then(() => {
-			// 		utility.fetchBotMessage(global.botChannel, (message) => {
-			// 			global.lastMessage = message;
-			// 		});
-			// 	})
-			// 	.catch((error) => {
-			// 		console.log("Message send failed");
-			// 		console.log(error);
-			// 		process.exit();
-			// 	});
          utility.sendNewMessage(global.lastMessage, global.botChannel, server, () => {
             utility.fetchBotMessage(global.botChannel, (message) => {
                global.lastMessage = message;
             });
          });
+      // Edits message on join/leave event
 		} else {
-			// global.lastMessage.edit(embed).catch((error) => {
-			// 	console.log("Message edit failed");
-			// 	console.log(error);
-			// 	process.exit();
-			// });
          utility.editMessage(global.lastMessage, server);
 		}
 	}
