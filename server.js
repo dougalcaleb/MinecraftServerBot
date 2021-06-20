@@ -14,10 +14,6 @@ const token = require("./token");
  * - send ticks and memory
  * */
 
-//* ====================================
-//* DISCORD
-//* ====================================
-
 let server = {
 	lastOnline: 0,
 	online: false,
@@ -27,11 +23,6 @@ let server = {
    offlineColor: "0xff0000",
 };
 
-let selfStats = {
-	hasSentMessage: false,
-	lastOnline: Date.now(),
-};
-
 let global = {
 	pingInt: null,
 	pingIntTimeout: 3 * 60 * 1000,
@@ -39,17 +30,21 @@ let global = {
 	lastMessage: null,
 };
 
+// Event: on startup
 client.once("ready", (c) => {
 	console.log("MinecraftBot Ready!");
 
+   // Get correct channel
 	global.botChannel = client.channels.cache.get("854121009313873940");
 
+   // Get message
 	if (!global.lastMessage) {
 		utility.fetchBotMessage(global.botChannel, (message) => {
 			global.lastMessage = message;
 		});
    }
    
+   // Set status
    client.user.setActivity("DevServer", { type: "WATCHING" });
 
    // Immediate verification ping
@@ -66,7 +61,6 @@ client.once("ready", (c) => {
 
    // Ping interval
    global.pingInt = setInterval(() => {
-      // console.log("Pinging server");
       utility.pingServer([25565, "localhost"], (result) => {
          console.log(`Server is online: ${result}`);
          if (result) {
@@ -80,6 +74,7 @@ client.once("ready", (c) => {
    }, global.pingIntTimeout);
 });
 
+// Event: on webhook message
 client.on("message", (message) => {
 	if (message.channel.id === "854133172564131870") {
 		let type = "";
@@ -119,7 +114,7 @@ client.on("message", (message) => {
 				return playerOnline != player;
 			});
       }
-      // Health update
+      // Server health update
       if (message.content.includes("SERVER_HEALTH_REPORT")) {
          type = "health";
          server.lastOnline = Date.now();
@@ -141,11 +136,12 @@ client.on("message", (message) => {
                global.lastMessage = message;
             });
          });
-      // Edits message on join/leave event
+      // Edits message on join/leave/health event
 		} else {
          utility.editMessage(global.lastMessage, server);
 		}
 	}
 });
 
+// Login
 client.login(token.token);

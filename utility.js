@@ -6,7 +6,7 @@ function getTimeSince(date) {
    if (date == 0) {
       return "unknown";
    }
-   
+
 	var seconds = Math.floor((Date.now() - date) / 1000);
 	var interval = seconds / 31536000;
 	if (interval > 1) {
@@ -82,7 +82,7 @@ function fetchBotMessage(channel, callback) {
 	});
 }
 
-// Edit the last embed message (join/leave events)
+// Edit the last embed message (join/leave/health events)
 function editMessage(message, server, callback) {
 	// Message
    let embedMsg = `${server.online ? ":white_check_mark: Online" : ":x: Offline"} (Verified at ${getTime(Date.now())})
@@ -94,7 +94,6 @@ function editMessage(message, server, callback) {
       \n:bar_chart: ${server.health[1]}
       \n:video_game: Players online (${server.players.length}):\n`;
    }
-      
 
 	server.players.forEach((op) => {
 		embedMsg += `- ${op} \n`;
