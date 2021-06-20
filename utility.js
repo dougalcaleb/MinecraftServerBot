@@ -3,6 +3,10 @@ const Discord = require("discord.js");
 
 // Returns a string that says how long it has been since the given timestamp
 function getTimeSince(date) {
+   if (date == 0) {
+      return "unknown";
+   }
+   
 	var seconds = Math.floor((Date.now() - date) / 1000);
 	var interval = seconds / 31536000;
 	if (interval > 1) {
@@ -32,6 +36,9 @@ function getTimeSince(date) {
 
 // Returns a time + date string from a timestamp (hh:mm:ss xm, mm/dd/yyyy)
 function getTime(date) {
+   if (date == 0) {
+      return "";
+   }
 	return new Date(date).toLocaleTimeString("en-US") + ", " + new Date(date).toLocaleDateString("en-US");
 }
 
@@ -78,11 +85,16 @@ function fetchBotMessage(channel, callback) {
 // Edit the last embed message (join/leave events)
 function editMessage(message, server, callback) {
 	// Message
-	let embedMsg = `${server.online ? ":white_check_mark: Online" : ":x: Offline"} (Verified at ${getTime(Date.now())})
+   let embedMsg = `${server.online ? ":white_check_mark: Online" : ":x: Offline"} (Verified at ${getTime(Date.now())})
       \n:clock2: Last online: ${getTime(server.lastOnline)} (${getTimeSince(server.lastOnline)})
-      \n:signal_strength: ${server.health[0]}
+      \n`;
+   if (server.online) {
+      embedMsg +=
+      `:signal_strength: ${server.health[0]}
       \n:bar_chart: ${server.health[1]}
       \n:video_game: Players online (${server.players.length}):\n`;
+   }
+      
 
 	server.players.forEach((op) => {
 		embedMsg += `- ${op} \n`;
@@ -110,9 +122,13 @@ function editMessage(message, server, callback) {
 function sendNewMessage(message, channel, server, callback) {
 	// Message
 	let embedMsg = `${server.online ? ":white_check_mark: Online" : ":x: Offline"} (Verified at ${getTime(Date.now())})
-   \n:clock2: Last online: ${getTime(server.lastOnline)} (${getTimeSince(server.lastOnline)}) 
-   \n:video_game: Players online (${server.players.length}):\n`;
+   \n:clock2: Last online: ${getTime(server.lastOnline)} (${getTimeSince(server.lastOnline)})
+   \n`;
 
+   if (server.online) {
+      embedMsg += `:video_game: Players online (${server.players.length}):\n`;
+   } 
+   
 	server.players.forEach((op) => {
 		embedMsg += `- ${op} \n`;
 	});

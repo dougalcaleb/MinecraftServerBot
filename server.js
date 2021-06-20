@@ -51,6 +51,33 @@ client.once("ready", (c) => {
    }
    
    client.user.setActivity("DevServer", { type: "WATCHING" });
+
+   // Immediate verification ping
+   utility.pingServer([25565, "localhost"], (result) => {
+      console.log(`Server is online: ${result}`);
+      if (result) {
+         server.online = true;
+      } else {
+         server.online = false;
+      }
+
+      utility.editMessage(global.lastMessage, server);
+   });
+
+   // Ping interval
+   global.pingInt = setInterval(() => {
+      // console.log("Pinging server");
+      utility.pingServer([25565, "localhost"], (result) => {
+         console.log(`Server is online: ${result}`);
+         if (result) {
+            server.online = true;
+         } else {
+            server.online = false;
+         }
+
+         utility.editMessage(global.lastMessage, server);
+      });
+   }, global.pingIntTimeout);
 });
 
 client.on("message", (message) => {
@@ -71,20 +98,6 @@ client.on("message", (message) => {
 			type = "online";
 			server.online = true;
 			server.lastOnline = Date.now();
-
-			global.pingInt = setInterval(() => {
-				// console.log("Pinging server");
-				utility.pingServer([25565, "localhost"], (result) => {
-					console.log(`Server is online: ${result}`);
-					if (result) {
-						server.online = true;
-					} else {
-						server.online = false;
-					}
-
-               utility.editMessage(global.lastMessage, server);
-				});
-			}, global.pingIntTimeout);
 		}
 		// Player joins
 		if (message.content.includes("joined. online:")) {
