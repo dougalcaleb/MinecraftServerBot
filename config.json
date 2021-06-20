@@ -1,0 +1,6 @@
+{
+   "spigotServerAddress": "localhost",
+   "spigotServerPort": 25565,
+   "useWebhook": true,
+   "webserverPort": 3000
+}

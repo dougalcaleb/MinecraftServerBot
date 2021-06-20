@@ -86,13 +86,24 @@ function fetchBotMessage(channel, callback) {
 function editMessage(message, server, callback) {
 	// Message
    let embedMsg = `${server.online ? ":white_check_mark: Online" : ":x: Offline"} (Verified at ${getTime(Date.now())})
-      \n:clock2: Last online: ${getTime(server.lastOnline)} (${getTimeSince(server.lastOnline)})
-      \n`;
-   if (server.online) {
+   \n`;
+
+   if (!server.online) {
       embedMsg +=
-      `:signal_strength: ${server.health[0]}
+      `:clock2: Last online: ${getTime(server.lastOnline)} (${getTimeSince(server.lastOnline)})
+      \n`;
+   }
+      
+   if (server.online && server.health.length > 0) {
+      embedMsg +=
+         `:signal_strength: ${server.health[0]}
       \n:bar_chart: ${server.health[1]}
-      \n:video_game: Players online (${server.players.length}):\n`;
+      \n`;
+   }
+
+   if (server.online) {
+      embedMsg += 
+      `:video_game: Players online(${ server.players.length }): \n`;
    }
 
 	server.players.forEach((op) => {
@@ -121,8 +132,12 @@ function editMessage(message, server, callback) {
 function sendNewMessage(message, channel, server, callback) {
 	// Message
 	let embedMsg = `${server.online ? ":white_check_mark: Online" : ":x: Offline"} (Verified at ${getTime(Date.now())})
-   \n:clock2: Last online: ${getTime(server.lastOnline)} (${getTimeSince(server.lastOnline)})
    \n`;
+   
+   if (!server.online) {
+      embedMsg += `:clock2: Last online: ${getTime(server.lastOnline)} (${getTimeSince(server.lastOnline)})
+      \n`;
+   }
 
    if (server.online) {
       embedMsg += `:video_game: Players online (${server.players.length}):\n`;
