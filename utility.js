@@ -55,7 +55,7 @@ function pingServer(ip, callback) {
 
 // Parse a player's name to prevent text formatting
 function parsePlayerName(name) {
-	let fixedName = name.trim().substring(2, name.length - 2);
+	let fixedName = name.trim();
 	fixedName = fixedName.split("").map((char) => {
 		if (char === "*" || char === "_") {
 			return "\\" + char;
@@ -79,7 +79,9 @@ function fetchBotMessage(channel, callback) {
 function editMessage(message, server, callback) {
 	// Message
 	let embedMsg = `${server.online ? ":white_check_mark: Online" : ":x: Offline"} (Verified at ${getTime(Date.now())})
-      \n:clock2: Last online: ${getTime(server.lastOnline)} (${getTimeSince(server.lastOnline)}) 
+      \n:clock2: Last online: ${getTime(server.lastOnline)} (${getTimeSince(server.lastOnline)})
+      \n:signal_strength: ${server.health[0]}
+      \n:bar_chart: ${server.health[1]}
       \n:video_game: Players online (${server.players.length}):\n`;
 
 	server.players.forEach((op) => {
